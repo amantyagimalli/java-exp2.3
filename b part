@@ -1,0 +1,171 @@
+import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+import java.util.Comparator;
+
+// -------------------- Part a Classes --------------------
+class Employee {
+    String name;
+    int age;
+    double salary;
+
+    Employee(String name, int age, double salary) {
+        this.name = name;
+        this.age = age;
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | Age: " + age + " | Salary: " + salary;
+    }
+}
+
+// -------------------- Part b Classes --------------------
+class Student {
+    String name;
+    double marks;
+
+    Student(String name, double marks) {
+        this.name = name;
+        this.marks = marks;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | Marks: " + marks;
+    }
+}
+
+// -------------------- Part c Classes --------------------
+class Product {
+    String name;
+    double price;
+    String category;
+
+    Product(String name, double price, String category) {
+        this.name = name;
+        this.price = price;
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | Price: " + price + " | Category: " + category;
+    }
+}
+
+// -------------------- Main Program --------------------
+public class LambdaStreamDemo {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        while(true) {
+            System.out.println("\n=== Java Lambda & Stream Menu ===");
+            System.out.println("1. Sort Employees using Lambda Expressions");
+            System.out.println("2. Filter & Sort Students using Streams");
+            System.out.println("3. Stream Operations on Products");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            switch(choice) {
+                case 1:
+                    sortEmployees();
+                    break;
+                case 2:
+                    filterSortStudents();
+                    break;
+                case 3:
+                    productStreamOperations();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    sc.close();
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+
+    // -------------------- Part A --------------------
+    public static void sortEmployees() {
+        List<Employee> employees = Arrays.asList(
+                new Employee("Aman", 25, 50000),
+                new Employee("Riya", 30, 70000),
+                new Employee("John", 22, 45000),
+                new Employee("Sara", 28, 60000)
+        );
+
+        System.out.println("\n--- Original List ---");
+        employees.forEach(System.out::println);
+
+        // Sort by name
+        employees.sort((e1, e2) -> e1.name.compareTo(e2.name));
+        System.out.println("\n--- Sorted by Name ---");
+        employees.forEach(System.out::println);
+
+        // Sort by age
+        employees.sort(Comparator.comparingInt(e -> e.age));
+        System.out.println("\n--- Sorted by Age ---");
+        employees.forEach(System.out::println);
+
+        // Sort by salary descending
+        employees.sort((e1, e2) -> Double.compare(e2.salary, e1.salary));
+        System.out.println("\n--- Sorted by Salary (Descending) ---");
+        employees.forEach(System.out::println);
+    }
+
+    // -------------------- Part B --------------------
+    public static void filterSortStudents() {
+        List<Student> students = Arrays.asList(
+                new Student("Aman", 80),
+                new Student("Riya", 70),
+                new Student("John", 90),
+                new Student("Sara", 85)
+        );
+
+        System.out.println("\n--- Students with Marks > 75% Sorted by Marks ---");
+        students.stream()
+                .filter(s -> s.marks > 75)
+                .sorted(Comparator.comparingDouble(s -> s.marks))
+                .map(s -> s.name + " (" + s.marks + ")")
+                .forEach(System.out::println);
+    }
+
+    // -------------------- Part C --------------------
+    public static void productStreamOperations() {
+        List<Product> products = Arrays.asList(
+                new Product("Laptop", 70000, "Electronics"),
+                new Product("Phone", 50000, "Electronics"),
+                new Product("Shirt", 1500, "Clothing"),
+                new Product("Jeans", 2500, "Clothing"),
+                new Product("Milk", 50, "Grocery"),
+                new Product("Bread", 30, "Grocery")
+        );
+
+        // Group by category
+        Map<String, List<Product>> grouped = products.stream()
+                .collect(Collectors.groupingBy(p -> p.category));
+
+        System.out.println("\n--- Products Grouped by Category ---");
+        grouped.forEach((cat, list) -> {
+            System.out.println(cat + ": " + list);
+        });
+
+        // Most expensive product in each category
+        Map<String, Optional<Product>> maxPrice = products.stream()
+                .collect(Collectors.groupingBy(p -> p.category,
+                        Collectors.maxBy(Comparator.comparingDouble(p -> p.price))));
+
+        System.out.println("\n--- Most Expensive Product in Each Category ---");
+        maxPrice.forEach((cat, prod) -> System.out.println(cat + ": " + prod.get()));
+
+        // Average price of all products
+        double avgPrice = products.stream()
+                .collect(Collectors.averagingDouble(p -> p.price));
+        System.out.println("\nAverage Price of All Products: " + avgPrice);
+    }
+}
